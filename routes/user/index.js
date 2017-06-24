@@ -1,17 +1,19 @@
 var express = require('express');
-var debug = require('debug')('movieapp:users');
 var user = require('./userController.js');
+var auth = require('./../../auth/auth.js');
 var router = express.Router();
 
 
 router
-	.get('/',user.get)
+	.get('/',auth.isAuthenticated,user.get)
 	.post('/',user.register);
 
 router
-	.post('/token',user.get);
+	.post('/token',user.generateToken);
 
 router
-	.post('/genre',user.get);
+	.get('/genre',auth.isAuthenticated,user.get)
+	.post('/genre',auth.isAuthenticated,user.get)
+	.put('/genre',auth.isAuthenticated,user.get);
 
 module.exports = router;
