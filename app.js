@@ -2,9 +2,13 @@ var express = require('express');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 
+//connect mongo
+mongoose.connect('mongodb://localhost:27017/movieapp');
+
+//boot all routes
 var index = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
 
@@ -12,8 +16,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+//initiate with routes
 app.use('/', index);
-app.use('/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -30,7 +34,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.sendStatus(err.status);
+  res.json({error:err.message});
 });
 
 module.exports = app;
