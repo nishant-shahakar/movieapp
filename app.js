@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/movieapp');
 mongoose.Promise = require('bluebird');
 
-//boot all routes
+//import routes
 var index = require('./routes/index');
 
 var app = express();

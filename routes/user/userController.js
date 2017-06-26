@@ -1,5 +1,6 @@
 var debug = require('debug')('movieapp:usersCtr');
 var User = require('./userModel.js');
+var Movies = require('./../movies/moviesModel.js');
 var db = require('./../../utils/redisClient.js').db;
 var redisPrefix = 'mapp:';
 var token = require('./../../utils/token.js');
@@ -160,7 +161,33 @@ exports.addGenre = function(req,res,next){
     	});	
 	});
 }
-
+exports.getRecommendation = function(req,res,next){
+	var id = req.userId;
+	User.findOne({_id:id},function(err,user){
+		if (err) {
+			var error = {
+				message:'Some thing went wrong',
+				status:500
+			};
+		 	return next(error);
+		}
+		var genre = user.genre;
+		var q = Movies.find({genre:{"$in" :genre}}).limit(20);
+		q.exec(function(err,movies){
+			if(err){
+				var error = {
+		    		message:'Some thing went wrong',
+		    		status:500
+		    	};
+				return next(error);
+			}
+			var success = {
+		    	movies:movies
+		    };
+		    res.json(success);
+		});
+	});
+}
 var saveToken = function(tkn,id){
 	var key = redisPrefix + tkn;
 	debug('Redis:inserted: new token');

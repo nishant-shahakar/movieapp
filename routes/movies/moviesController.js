@@ -102,6 +102,45 @@ exports.rateMovies = function(req,res,next){
 	    });
 	}); 
 }
+exports.topRated = function(req,res,next){
+	Reviews.aggregate([
+		    { "$unwind": "$movie" },
+		    {
+		        "$lookup": {
+		            "from": "movies",
+		            "localField": "movie",
+		            "foreignField": "_id",
+		            "as": "resultingArray"
+		        }
+		    },
+		    {
+		        "$group": {
+		            "_id":"$movie",
+		            "averageRating": { "$avg":"$rating" },
+		            "movieName":{"$first":"$resultingArray.name"}
+		        }
+		    },{
+		    	"$sort": {
+		    		"averageRating": -1
+		    	}
+		    },{ 
+		    	"$limit":20
+		    }
+		 ])
+		.exec(function(err,movies){
+			if(err){
+					var error = {
+		    		message:'Some thing went wrong',
+		    		status:500
+		    	};
+				return next(error);
+			}
+			var success = {
+				movies:movies
+			}
+			res.json(success);
+		});
+}
 var validatedMovie = function(movie){
 	if(!movie.name){
 		return false;
@@ -111,3 +150,19 @@ var validatedMovie = function(movie){
 	}
 	return true;
 }
+
+// .unwind('$movie')
+// 		.group({
+// 			"_id": "$movie",
+// 			"averageRating":{
+// 				"$avg": "$rating"
+// 			},
+// 			"comments":{
+// 				'$push':{
+// 					"comment":"$comment",
+// 					"userId":"$user"
+// 				}
+// 			}
+// 		})
+// 		.sort({'averageRating': -1})
+// 		.limit(20)

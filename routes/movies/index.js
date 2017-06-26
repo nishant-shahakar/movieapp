@@ -9,5 +9,7 @@ router
 
 router
 	.post('/review/:id',auth.isAuthenticated,movies.rateMovies);
+router
+	.get('/top',auth.isAuthenticated,movies.topRated);
 
 module.exports = router;

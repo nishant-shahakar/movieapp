@@ -16,4 +16,7 @@ router
 	.post('/genre',auth.isAuthenticated,user.addGenre)
 	.put('/genre',auth.isAuthenticated,user.get);
 
+router
+	.get('/recommend',auth.isAuthenticated,user.getRecommendation);
+
 module.exports = router;
