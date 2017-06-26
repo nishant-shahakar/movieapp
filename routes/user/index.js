@@ -12,8 +12,8 @@ router
 	.post('/token',user.generateToken);
 
 router
-	.get('/genre',auth.isAuthenticated,user.get)
-	.post('/genre',auth.isAuthenticated,user.get)
+	.get('/genre',auth.isAuthenticated,user.getGenre)
+	.post('/genre',auth.isAuthenticated,user.addGenre)
 	.put('/genre',auth.isAuthenticated,user.get);
 
 module.exports = router;

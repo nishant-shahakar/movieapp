@@ -14,7 +14,14 @@ exports.get = function(req,res,next) {
 	    	};
 		  	return next(error); 
 		  }
-		res.json(user || {});
+		  if(!user){
+		  	var error = {
+	    		message:'Unauthorized',
+	    		status:401
+	    	};
+		  	return next(error); 
+		  }
+		res.json(user);
 	});
 };
 exports.register = function(req,res,next) {
@@ -84,6 +91,76 @@ exports.generateToken = function(req,res,next){
 		});
 	});
 }
+exports.getGenre = function(req,res,next){
+	var id = req.userId;
+	User.find({ _id:id },'genre' ,function (err, user) {
+		if(err){
+			var error = {
+	    		message:'Some thing went wrong',
+	    		status:500
+	    	};
+		  	return next(error); 
+		}
+		if(!user){
+		  	var error = {
+	    		message:'Unauthorized',
+	    		status:401
+	    	};
+		  	return next(error); 
+		}
+		res.json(user || {});	
+	});
+}
+exports.addGenre = function(req,res,next){
+	var id = req.userId;
+	var genre = req.body.genre;
+	if(!genre){
+		var error = {
+	    		message:'No genre',
+	    		status:400
+	    	};
+		  	return next(error); 
+	}
+	User.findOne({ _id:id },function (err, user) {
+		if(err){
+			var error = {
+	    		message:'Some thing went wrong',
+	    		status:500
+	    	};
+		  	return next(error); 
+		}
+		if(!user){
+		  	var error = {
+	    		message:'Unauthorized',
+	    		status:401
+	    	};
+		  	return next(error); 
+		}
+		genre = genre.toLowerCase();
+		if(user.genre.hasElement(genre)){
+			var success = {
+		    	message:'Genre added.'
+		    };
+			res.json(success);
+			return;
+		}
+		user.genre.push(genre);
+		user.save(function(err,newUser) {
+		    if (err){
+		    	var error = {
+		    		message:'Some thing went wrong',
+		    		status:500
+		    	};
+		    	return next(error);
+		    }
+		    var success = {
+		    	message:'Genre added.'
+		    };
+			res.json(success);
+    	});	
+	});
+}
+
 var saveToken = function(tkn,id){
 	var key = redisPrefix + tkn;
 	debug('Redis:inserted: new token');
@@ -94,3 +171,22 @@ var saveToken = function(tkn,id){
         }
     });
 }
+
+//Augmentation
+Array.prototype.hasElement = (
+  !Array.indexOf ? function (o)
+  {
+    var l = this.length + 1;
+    while (l -= 1)
+    {
+        if (this[l - 1] === o)
+        {
+            return true;
+        }
+    }
+    return false;
+  } : function (o)
+  {
+    return (this.indexOf(o) !== -1);
+  }
+);
