@@ -10,6 +10,7 @@ router
 router
 	.post('/review/:id',auth.isAuthenticated,movies.rateMovies);
 router
-	.get('/top',auth.isAuthenticated,movies.topRated);
+	.get('/top',auth.isAuthenticated,movies.topRated)
+	.get('/get/:id',auth.isAuthenticated,movies.getOne);
 
 module.exports = router;

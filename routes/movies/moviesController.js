@@ -1,5 +1,7 @@
+var async =require('async');
 var Movies = require('./moviesModel.js');
 var Reviews = require('./reviewsModel.js');
+var mongoose = require('mongoose');
 
 exports.get = function(req,res,next) {
 	var q = Movies.find({}).limit(20);
@@ -15,6 +17,63 @@ exports.get = function(req,res,next) {
 	    	movies:movies
 	    };
 	    res.json(success);
+	});
+}
+exports.getOne = function(req,res,next) {
+	var movieId = req.params.id;
+	var getMovie = function(callback){
+		Movies.findOne({_id:movieId},'name releasedt genre',function(err,movie){
+			if(err){
+				return callback(err);
+			}
+			callback(null,movie);
+		});
+	}
+	var getReviews = function(callback){
+		var q = Reviews.find({movie:movieId},'comment rating user').sort({"rating":-1}).limit(20);
+		q.exec(function(err,reviews){
+			if(err){
+				return callback(err);
+			}
+			callback(null,reviews);
+		});
+	}
+	var getRating = function(callback){
+		Reviews.aggregate()
+		.match({"movie": mongoose.Types.ObjectId(movieId)})
+		.group({
+			"_id": "$movie",
+			"averageRating":{
+				"$avg": "$rating"
+			}
+		})
+		.exec(function(err,movies){
+			if(err){
+				return callback(err);
+			}
+			if(movies.length > 0){
+				callback(null,movies[0].averageRating);
+			}else{
+				callback(null,0);
+			}
+		});
+	}
+	var tasks = {
+		movie:getMovie,
+		reviews:getReviews,
+		averageRating:getRating
+	};
+	async.parallel(tasks,function(err,results){
+		if(err){
+			console.log(err);
+			var error = {
+				message:'something went wrong.',
+				status:500
+		    };
+		    next(error);
+			return;
+		}
+		res.json(results);
 	});
 }
 exports.addMovies = function(req,res,next){
