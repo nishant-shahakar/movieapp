@@ -1,16 +1,15 @@
 # Movie App
 
-##Dependency :
-##### 1) Node 6.x >
-##### 2) MongoDB server.
-##### 3) Redis server.
+### Dependency
+	 Node 6.x >
+	 MongoDB server.
+	 Redis server.
 
-##Install and run :
-##### 1) clone project and cd into project
-##### 2) npm install
-##### 3) npm start
+### Install and run
+	 clone project and cd into project
+	 npm install
+	 npm start
 
-##Register User :
 
 ####  Register user in MovieApp and get token for using API.
 
@@ -18,7 +17,7 @@ Fields for adding user :
 <br>1)Email
 <br>2)Password 
 
-##Usage :
+### Usage
 
 
 ### Add User
